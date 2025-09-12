@@ -30,6 +30,7 @@ const App = () => {
     console.log(max, index)
     return index
   }
+  
 
   const maxIndex = findMax()
 
