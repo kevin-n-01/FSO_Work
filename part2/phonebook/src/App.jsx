@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import NewContact from './components/NewContact'
 import ContactList from './components/ContactList'
-import axios from 'axios'
+import contactServices from './services/contacts'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -9,42 +9,58 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('111-111-1111')
   const [search, setSearch] = useState('')
 
-  const hook = () => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('Promise Fetched', response.statusText)
-        setPersons(response.data)
-        console.log(persons)
-      })
-      .catch(error => console.log(error))
-  }
-
-  useEffect(hook, [])
+  console.log('rendering')
+  useEffect(() => {
+    contactServices.getAll()
+                   .then(initialContacts => setPersons(initialContacts))
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
     console.log('button clicked', event.target)
-    if(persons.some((person) => {
-      console.log(person.name)
-      return person.name === newName
-    })) {
-      alert(`${newName} already exists in the phonebook`)
+    const retrieveContact = persons.find(person => person.name === newName)
+    if(retrieveContact) {
+      if(window.confirm(`Replace existing number for ${retrieveContact.name} with ${newNumber}?`)) {
+        const updatedContact = {...retrieveContact, number: newNumber}
+        contactServices.updateContact(updatedContact)
+                       .then(returnedContact => {
+                        setPersons(persons.map(person => person.id === returnedContact.id ? returnedContact : person))
+                        setNewNumber('111-111-1111')
+                        setNewName('')
+                       })
+      }
     } else {
       const personObject = {
         name: newName,
         number: newNumber
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
+      contactServices.addContact(personObject)
+                     .then(returnedContact => {
+                      setPersons(persons.concat(returnedContact))
+                      setNewName('')
+                      setNewNumber('111-111-1111')
+                     })
     }
   }
 
   const filterPersons = () => {
-    return persons.filter((person) => {
-      const name = person.name.toLowerCase()
-      return name.includes(search)
-    })
+    if(search !== '') {
+      return persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
+    } else {
+      return persons
+    }
+  }
+
+  const deletePerson = (id) => {
+    const findPerson = persons.find((person) => person.id === id)
+    console.log("Person to be deleted", findPerson.name)
+    if(window.confirm(`Delete contact ${findPerson.name}?`)) {
+      contactServices.deleteContact(id)
+                     .then(deletedContact => {
+                      setPersons(persons.filter(person => person.id !== deletedContact.id))
+                      console.log(deletedContact.name, "deleted")
+                     })
+    }
   }
 
   return (
@@ -54,7 +70,7 @@ const App = () => {
         filter shown with 
         <input 
           value={search}
-          onChange={(event) => setSearch(event.target.value.toLowerCase())}
+          onChange={(event) => setSearch(event.target.value)}
         />
       </label>
       <h2>Add New Contact</h2>
@@ -66,7 +82,7 @@ const App = () => {
         setNewNumber={setNewNumber}
       />
       <h2>Numbers</h2>
-      <ContactList persons={filterPersons()} />
+      <ContactList persons={filterPersons()} handleDelete={deletePerson} />
     </div>
   )
 }
