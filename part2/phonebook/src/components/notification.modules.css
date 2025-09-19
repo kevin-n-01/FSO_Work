@@ -1,0 +1,24 @@
+.message{
+    color: black;
+    background: lightgray;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    max-width: 50%;
+    
+}
+
+.alert {
+    color: green;
+    background-color: rgb(160, 224, 160);
+    border-color: green;
+    transition: ease-in-out 0.5s;
+}
+
+.error {
+    color: red;
+    background-color: rgb(248, 200, 200);
+    border-color: red;
+}

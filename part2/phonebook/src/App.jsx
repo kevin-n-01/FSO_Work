@@ -2,18 +2,31 @@ import { useState, useEffect } from 'react'
 import NewContact from './components/NewContact'
 import ContactList from './components/ContactList'
 import contactServices from './services/contacts'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('111-111-1111')
   const [search, setSearch] = useState('')
+  const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('')
 
   console.log('rendering')
   useEffect(() => {
     contactServices.getAll()
                    .then(initialContacts => setPersons(initialContacts))
   }, [])
+
+  const displayMessage = (message, messageType) => {
+    setMessage(message)
+    setMessageType(messageType)
+    setTimeout(() => {
+      setMessage(null)
+      setMessageType(null)
+    }, 5000
+    )
+  }
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -25,6 +38,7 @@ const App = () => {
         contactServices.updateContact(updatedContact)
                        .then(returnedContact => {
                         setPersons(persons.map(person => person.id === returnedContact.id ? returnedContact : person))
+                        displayMessage(`${updatedContact.name} has been updated.`, 'alert')
                         setNewNumber('111-111-1111')
                         setNewName('')
                        })
@@ -37,6 +51,7 @@ const App = () => {
       contactServices.addContact(personObject)
                      .then(returnedContact => {
                       setPersons(persons.concat(returnedContact))
+                      displayMessage(`${personObject.name} has been added to contacts`, 'alert')
                       setNewName('')
                       setNewNumber('111-111-1111')
                      })
@@ -58,7 +73,13 @@ const App = () => {
       contactServices.deleteContact(id)
                      .then(deletedContact => {
                       setPersons(persons.filter(person => person.id !== deletedContact.id))
+                      displayMessage(`${deletedContact.name} has been removed from contacts.`, '')
                       console.log(deletedContact.name, "deleted")
+                     })
+                     .catch((error) => {
+                      displayMessage(`${findPerson.name} was already deleted from the server`, 'error')
+                      setPersons(persons.filter((person) => person.id !== findPerson.id))
+                      console.error("error code", error)
                      })
     }
   }
@@ -66,6 +87,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={message} messageType={messageType} />
       <label>
         filter shown with 
         <input 
