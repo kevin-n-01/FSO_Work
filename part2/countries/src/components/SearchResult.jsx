@@ -1,29 +1,40 @@
 import CountryDetail from "./CountryDetail"
+import SelectCountry from "./SelectCountry"
+import "./SearchResult.modules.css"
 
-const SearchResult = ({result , countries}) => {
-    console.log("Number of countries returned: ", result.length)
+const SearchResult = ({result , weather, onShowCountry, handleWeather, hasSearched}) => {
 
-    const retrieveCountry = (name) => {
-        return countries.get(name)
-    }
+    console.log("Number of Countries Found", result.length);
 
-    if(result.length > 5) {
+    if(!hasSearched) return null;
+
+    if(!result || result.length === 0)
+        return <p> No Results Found. Please try another search.</p>
+
+    if(result.length > 10) {
         return (
-            <p>Too many countries meet your search criteria please continue filtering.</p>
+            <p>Too many countries meet your search criteria please refine your search.</p>
         )
     } else if (result.length > 1) {
         return (
-            <ul>
-                {result.map(country => (
-                    <li key={country}>{country}</li>
-                ))}
+            <ul className="countryList">
+                {result.map((country, id) => {
+                    console.log("Listing countries...");
+                    return (
+                        <li key={id} className="countryListItem">
+                            <span>{country.name.common}</span>
+                            <button onClick={() => onShowCountry(country)}>Show</button>
+                        </li>
+                    )
+                })}
             </ul>
         )
     } else if (result.length === 1) {
-        return <CountryDetail country={retrieveCountry(result[0])} />
-    } else {
-        return <></>
-    }
+        return (
+            <CountryDetail country={result[0]} weather={weather} handleWeather={handleWeather}/>
+        )
+    } else return <></>
+
 }
 
 export default SearchResult

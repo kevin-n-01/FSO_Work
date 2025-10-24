@@ -16,9 +16,20 @@ const RetrieveCountries = {
                         return {countries, countryNames}
                     })
     },
+    getAllArray: () => {
+        return axios.get(`${baseUrl}/all`)
+                    .then(response => {
+                        const countries = response.data;
+                        return countries;
+                    }).catch(`The server could not return all countries`)
+    },
     getSingleCountry: (name) => {
         const country = axios.get(`${baseUrl}/name/${name}`)
-                             .then(response => response.data)
+                             .then(response => {
+                                const countries = response.data;
+                                console.log(`Loading array of ${countries.length} countries.`);
+                                return countries;
+                            })
                              .catch(`The server could not find country with name ${name}`)
         return country
     }

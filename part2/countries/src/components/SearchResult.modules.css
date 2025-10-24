@@ -1,0 +1,14 @@
+.countryListItem {
+    display: list-item;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.countryListItem span {
+    margin-right: 10px;
+}
+
+.countryList{
+    padding-left: 40px;
+    list-style-type: disc;
+}
