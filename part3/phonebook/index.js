@@ -33,6 +33,17 @@ app.get('/api/persons', (request, response) => {
     response.json(contacts);
 })
 
+app.get('/api/persons/:id', (request, response) => {
+    const id = request.params.id;
+    const person = contacts.find(contact => contact.id === id);
+    if(person) {
+        response.json(person);
+    } else {
+        response.status(404).end();
+    }
+    console.log(`Retrieved contact ${person.name}`);
+})
+
 //API Request for General Info
 app.get('/info', (request, response) => {
     response.send(`<p>Phonebook has info for ${contacts.length} people.</p>
