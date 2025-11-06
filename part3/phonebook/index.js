@@ -40,6 +40,10 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({
             error: 'Value Missing'
         })
+    } else if(contacts.some(contact => contact.name === body.name)) {
+        return response.status(400).json({
+            error: `Contact ${body.name} already exists.`
+        })
     }
 
     const contact = {
