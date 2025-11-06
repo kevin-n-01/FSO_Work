@@ -6,6 +6,10 @@ app.use(express.json());
 
 const now = new Date().toLocaleString();
 
+const generateId = () => {
+    return String(Math.floor(Math.random() * 100000));
+}
+
 let contacts = [
     { 
       "id": "1",
@@ -29,6 +33,27 @@ let contacts = [
     }
 ]
 
+app.post('/api/persons', (request, response) => {
+    const newId = generateId();
+    const body = request.body;
+    if(!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'Value Missing'
+        })
+    }
+
+    const contact = {
+        id: newId,
+        name: body.name,
+        number: body.number
+    }
+
+    contacts = contacts.concat(contact);
+
+    response.json(contact);
+    console.log("Contact Added", contact);
+})
+
 app.get('/api/persons', (request, response) => {
     response.json(contacts);
 })
@@ -42,6 +67,13 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).end();
     }
     console.log(`Retrieved contact ${person.name}`);
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+    const id = request.params.id;
+    contacts = contacts.filter((contact) => contact.id !== id);
+    //response.send('Deleted contact');
+    response.status(204).end();
 })
 
 //API Request for General Info
