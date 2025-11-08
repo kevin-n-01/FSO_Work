@@ -5,7 +5,9 @@ const port = process.env.PORT || 3001
 
 app.use(express.json());
 
-app.use(morgan('tiny'));
+morgan.token('summary', (request) => JSON.stringify(request.body));
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :summary'));
 
 const now = new Date().toLocaleString();
 
