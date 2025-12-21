@@ -3,6 +3,7 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors()); // Allow all origins during development
+
 app.use(express.json());
 
 let notes = [
@@ -64,7 +65,7 @@ app.post('/api/notes', (req, res) => {
   console.log("Note Posted: ", note);
 })
 
-app.get('/', (request , response) => {
+app.get('/api', (request , response) => {
     response.send('<h1>Hello World</h1>')
 })
 
@@ -84,12 +85,33 @@ app.get('/api/notes/:id', (request , response) => {
   }
 })
 
+app.put('/api/notes/:id', (request, response) => {
+  const id = request.params.id;
+  const body = request.body;
+
+  const note = notes.find(note => note.id === id);
+  if(!note) {
+    return response.status(404).json({ error: "Note not found" })
+  }
+
+  const updatedNote = {
+    ...note,
+    content: body.content ?? note.content,
+    important: body.important ?? note.important
+  }
+
+  notes = notes.map(n => n.id === id ? updatedNote : n)
+  response.json(updatedNote);
+})
+
 app.delete('/api/notes/:id', (request , response) => {
   const id = request.params.id;
   notes = notes.filter((note) => note.id !== id);
   
   response.status(204).end();
 })
+
+app.use(express.static('dist'));
 
 app.use(unknownEndpoint);
 
