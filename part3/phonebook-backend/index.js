@@ -95,6 +95,8 @@ app.get('/info', (request, response) => {
         <p>${now}`)
 })
 
+app.use(express.static('dist'));
+
 app.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
 })
